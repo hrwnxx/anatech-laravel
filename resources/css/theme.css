@@ -1,0 +1,354 @@
+/* ============================================================
+   SHARED THEME - monochrome + complementary accent palette
+   Inspired by minimal, chromatic shop UIs (black/white/gray base,
+   pill-shaped buttons, soft card wells). Loaded on every page,
+   customer and admin, before customer.css / admin.css so those
+   files can layer page-specific touches on top of these tokens.
+
+   This file is purely presentational: no markup, no data, no
+   behavior lives here.
+   ============================================================ */
+
+
+:root {
+    /* ---- monochrome base ---- */
+    --ink: #131315;          /* near-black - primary buttons, headings */
+    --ink-soft: #303034;     /* hover state for black elements */
+    --paper: #ffffff;        /* cards, page panels */
+    --mist: #f5f5f6;         /* page background, image wells */
+    --mist-2: #ececee;       /* secondary wells, hover backgrounds */
+    --line: #e3e3e6;         /* borders / dividers */
+    --smoke: #8b8b90;        /* muted / secondary text */
+    --charcoal: #48484d;     /* body text on white */
+
+    /* ---- complementary accents (used ONLY for status/stock cues) ---- */
+    --accent-amber: #c98a2e;      /* low stock, pending */
+    --accent-amber-bg: #faf1e2;
+    --accent-rust: #b5533c;       /* out of stock, rejected, inactive */
+    --accent-rust-bg: #f8e9e5;
+    --accent-sage: #4f7a5b;       /* in stock, approved, active */
+    --accent-sage-bg: #e9f1ec;
+    --accent-slate: #545e78;      /* neutral info (e.g. units sold) */
+    --accent-slate-bg: #eaecf2;
+    --accent-star: #d9962f;       /* rating stars */
+
+    --radius-pill: 999px;
+    --radius-card: 18px;
+    --radius-sm: 10px;
+    --shadow-card: 0 1px 2px rgba(19, 19, 21, 0.04), 0 8px 24px rgba(19, 19, 21, 0.06);
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--charcoal);
+    background: var(--mist);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+a {
+    color: var(--ink);
+}
+
+a:hover {
+    color: var(--ink-soft);
+}
+
+/* ============================================================
+   BUTTONS - pill-shaped, monochrome by default
+   ============================================================ */
+
+.btn {
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.55rem 1.25rem;
+    letter-spacing: -0.01em;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    border-width: 1.5px;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+}
+
+.btn:focus, .btn:focus-visible {
+    box-shadow: 0 0 0 0.2rem rgba(19, 19, 21, 0.15);
+}
+
+/* Primary / dark actions */
+.btn-primary,
+.btn-dark {
+    background-color: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+}
+.btn-primary:hover, .btn-primary:active,
+.btn-dark:hover, .btn-dark:active {
+    background-color: var(--ink-soft) !important;
+    border-color: var(--ink-soft) !important;
+    color: var(--paper) !important;
+}
+
+/* Outline / secondary actions - white pill, black border, inverts on hover */
+.btn-outline-primary,
+.btn-outline-dark,
+.btn-outline-secondary {
+    background-color: var(--paper);
+    border-color: var(--ink);
+    color: var(--ink);
+}
+.btn-outline-primary:hover,
+.btn-outline-dark:hover,
+.btn-outline-secondary:hover {
+    background-color: var(--ink) !important;
+    border-color: var(--ink) !important;
+    color: var(--paper) !important;
+}
+
+.btn-secondary {
+    background-color: var(--mist-2);
+    border-color: var(--mist-2);
+    color: var(--charcoal);
+}
+.btn-secondary:hover {
+    background-color: var(--line) !important;
+    border-color: var(--line) !important;
+    color: var(--ink) !important;
+}
+
+/* Semantic actions keep the complementary accent colors, softened */
+.btn-success {
+    background-color: var(--accent-sage);
+    border-color: var(--accent-sage);
+    color: var(--paper);
+}
+.btn-success:hover {
+    background-color: #416a4d !important;
+    border-color: #416a4d !important;
+}
+
+.btn-danger {
+    background-color: var(--accent-rust);
+    border-color: var(--accent-rust);
+    color: var(--paper);
+}
+.btn-danger:hover {
+    background-color: #9c4632 !important;
+    border-color: #9c4632 !important;
+}
+
+.btn-outline-danger {
+    background-color: var(--paper);
+    border-color: var(--accent-rust);
+    color: var(--accent-rust);
+}
+.btn-outline-danger:hover {
+    background-color: var(--accent-rust) !important;
+    border-color: var(--accent-rust) !important;
+    color: var(--paper) !important;
+}
+
+.btn-warning {
+    background-color: var(--accent-amber);
+    border-color: var(--accent-amber);
+    color: var(--paper);
+}
+.btn-warning:hover {
+    background-color: #a8721f !important;
+    border-color: #a8721f !important;
+    color: var(--paper) !important;
+}
+
+.btn-check:checked + .btn-outline-primary {
+    background-color: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+}
+
+/* ============================================================
+   BADGES / STATUS PILLS
+   ============================================================ */
+
+.badge {
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    padding: 0.42em 0.75em;
+    border-radius: var(--radius-pill);
+}
+
+.badge.bg-primary,
+.badge.bg-dark {
+    background-color: var(--ink) !important;
+    color: var(--paper) !important;
+}
+
+.badge.bg-secondary {
+    background-color: var(--mist-2) !important;
+    color: var(--charcoal) !important;
+}
+
+.badge.bg-success {
+    background-color: var(--accent-sage-bg) !important;
+    color: var(--accent-sage) !important;
+}
+
+.badge.bg-danger,
+.badge.stock-badge-out {
+    background-color: var(--accent-rust-bg) !important;
+    color: var(--accent-rust) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--accent-amber-bg) !important;
+    color: var(--accent-amber) !important;
+}
+
+.badge.bg-info {
+    background-color: var(--accent-slate-bg) !important;
+    color: var(--accent-slate) !important;
+}
+
+.star-rating {
+    color: var(--accent-star) !important;
+}
+
+/* ============================================================
+   FORM CONTROLS
+   ============================================================ */
+
+.form-control,
+.form-select {
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--line);
+    padding: 0.55rem 1.1rem;
+    background-color: var(--paper);
+    color: var(--ink);
+}
+
+textarea.form-control {
+    border-radius: var(--radius-sm);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 0.2rem rgba(19, 19, 21, 0.1);
+}
+
+.form-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--ink);
+}
+
+.input-group-text {
+    background-color: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+    color: var(--smoke);
+}
+
+/* ============================================================
+   CARDS, TABLES, TABS, MODALS
+   ============================================================ */
+
+.card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+}
+
+.table {
+    color: var(--charcoal);
+}
+
+.table thead.table-light th {
+    background-color: var(--mist);
+    color: var(--smoke);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    border-bottom: 1px solid var(--line);
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: var(--mist);
+}
+
+.nav-tabs {
+    border-bottom: 1px solid var(--line);
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: var(--smoke);
+    font-weight: 600;
+    padding: 0.6rem 0.25rem;
+    margin-right: 1.5rem;
+    border-radius: 0;
+}
+
+.nav-tabs .nav-link:hover {
+    border: none;
+    color: var(--ink);
+}
+
+.nav-tabs .nav-link.active {
+    background: none;
+    color: var(--ink);
+    border-bottom: 2px solid var(--ink);
+}
+
+.modal-content {
+    border-radius: var(--radius-card);
+    border: none;
+}
+
+.modal-header.bg-primary {
+    background-color: var(--ink) !important;
+}
+
+.alert {
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 0.9rem;
+}
+
+.alert-info {
+    background-color: var(--accent-slate-bg);
+    color: var(--accent-slate);
+}
+
+.alert-warning {
+    background-color: var(--accent-amber-bg);
+    color: var(--accent-amber);
+}
+
+.alert-danger {
+    background-color: var(--accent-rust-bg);
+    color: var(--accent-rust);
+}
+
+.alert-secondary,
+.alert-light {
+    background-color: var(--mist);
+    color: var(--smoke);
+}
+
+.text-muted {
+    color: var(--smoke) !important;
+}
+
+::placeholder {
+    color: var(--smoke);
+    opacity: 1;
+}

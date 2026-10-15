@@ -1,0 +1,164 @@
+[
+    {
+        "id": 1,
+        "user_id": 2,
+        "gadget_id": 2,
+        "rating": 5,
+        "comment": "Great budget iPad, perfect for note-taking and streaming. Battery lasts all day.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 2,
+        "user_id": 2,
+        "gadget_id": 6,
+        "rating": 4,
+        "comment": "Solid everyday smartwatch, though I wish battery life was a bit longer.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 3,
+        "user_id": 2,
+        "gadget_id": 12,
+        "rating": 5,
+        "comment": "Super comfortable mouse, scroll wheel is a game changer for spreadsheets.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 4,
+        "user_id": 2,
+        "gadget_id": 13,
+        "rating": 5,
+        "comment": "Lightweight and fast, handles my daily workload without breaking a sweat.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 5,
+        "user_id": 3,
+        "gadget_id": 3,
+        "rating": 5,
+        "comment": "The M4 chip makes multitasking so smooth. Worth the upgrade from my old iPad.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 6,
+        "user_id": 3,
+        "gadget_id": 9,
+        "rating": 3,
+        "comment": "Display looks great but the companion app could use some polish.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 7,
+        "user_id": 3,
+        "gadget_id": 11,
+        "rating": 4,
+        "comment": "Good value smartwatch, tracks my workouts accurately.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 8,
+        "user_id": 3,
+        "gadget_id": 6,
+        "rating": 4,
+        "comment": "Comfortable to wear all day, and the ECG feature is a nice touch.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 9,
+        "user_id": 4,
+        "gadget_id": 5,
+        "rating": 5,
+        "comment": "Incredible display for digital art, the M5 chip is overkill in the best way.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 10,
+        "user_id": 4,
+        "gadget_id": 7,
+        "rating": 5,
+        "comment": "Battery easily lasts two days even with the always-on display. Love the satellite SOS.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 11,
+        "user_id": 4,
+        "gadget_id": 8,
+        "rating": 2,
+        "comment": "Health tracking is decent but the companion app crashes often on my phone.",
+        "status": "rejected",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 12,
+        "user_id": 4,
+        "gadget_id": 2,
+        "rating": 4,
+        "comment": "Bought a second one for my kid, works great for school.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:19:37"
+    },
+    {
+        "id": 13,
+        "user_id": 2,
+        "gadget_id": 21,
+        "rating": 5,
+        "comment": "The A19 chip and camera upgrades make this feel like a proper flagship. Battery easily lasts a full day.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:30:30"
+    },
+    {
+        "id": 14,
+        "user_id": 2,
+        "gadget_id": 17,
+        "rating": 4,
+        "comment": "Great for note-taking with the S Pen, though I wish it came bundled instead of sold separately.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:30:30"
+    },
+    {
+        "id": 15,
+        "user_id": 3,
+        "gadget_id": 24,
+        "rating": 5,
+        "comment": "The zoom camera is incredible for travel photos, and ProRes video quality feels studio-level.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:30:30"
+    },
+    {
+        "id": 16,
+        "user_id": 3,
+        "gadget_id": 29,
+        "rating": 4,
+        "comment": "Camera colors are gorgeous straight out of the box thanks to the Hasselblad tuning.",
+        "status": "pending",
+        "created_at": "2026-07-28 08:30:30"
+    },
+    {
+        "id": 17,
+        "user_id": 4,
+        "gadget_id": 33,
+        "rating": 5,
+        "comment": "S Pen support plus that massive zoom range makes this the ultimate productivity phone.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:30:30"
+    },
+    {
+        "id": 18,
+        "user_id": 4,
+        "gadget_id": 22,
+        "rating": 3,
+        "comment": "Good value for the price, but I miss having a telephoto lens.",
+        "status": "approved",
+        "created_at": "2026-07-28 08:30:30"
+    }
+]
