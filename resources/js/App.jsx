@@ -1,13 +1,14 @@
 import { Route, Routes } from 'react-router-dom';
-import RequireLogin from './auth/RequireLogin';
 import AdminLayout from './layouts/AdminLayout';
 import CustomerLayout from './layouts/CustomerLayout';
-import CatalogPage from './pages/CatalogPage';
-import GadgetDetailsPage from './pages/GadgetDetailsPage';
-import LoginPage from './pages/LoginPage';
-import MyPurchasesPage from './pages/MyPurchasesPage';
-import MyReviewsPage from './pages/MyReviewsPage';
+
+import CatalogPage from './pages/guest/CatalogPage';
+import GadgetDetailsPage from './pages/guest/GadgetDetailsPage';
+import LoginPage from './pages/auth/LoginPage';
+import MyPurchasesPage from './pages/customer/MyPurchasesPage';
+import MyReviewsPage from './pages/customer/MyReviewsPage';
 import NotFoundPage from './pages/NotFoundPage';
+
 import CustomersPage from './pages/admin/CustomersPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import GadgetsPage from './pages/admin/GadgetsPage';

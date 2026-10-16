@@ -234,3 +234,4 @@ description, image_url, archived, stock, units_sold, avg_rating, review_count }`
 Google login redirects to `/` (customers) or `/admin` (admins), and to
 `/login?error=...` when something goes wrong (`google-not-configured`,
 `google-failed`, `inactive`).
+"# Anatech-Laravel-Customer" 
