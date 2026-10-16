@@ -71,8 +71,8 @@ cd backend && php artisan migrate:fresh --seed
 
 ## 2. Demo accounts
 
-Every account keeps the password it had in the original project (the seeder
-stores the original bcrypt hashes, so use the same passwords as before).
+Every seeded account uses the same demo password: **`password`**
+(set in `backend/database/seeders/UserSeeder.php`).
 
 | Role     | Email                   | Log in at                                   |
 |----------|-------------------------|---------------------------------------------|
@@ -84,6 +84,21 @@ stores the original bcrypt hashes, so use the same passwords as before).
 Staff and customers log in on **separate pages**, and each page only accepts its
 own role. The staff page (`/staff-login`) is not linked from anywhere on the
 public site, so staff should bookmark it.
+
+**Can't log in as admin?** Check these, in order:
+
+1. Use **`http://localhost:5173/staff-login`**. The customer page (`/login`) refuses staff accounts.
+2. After pulling, run `php artisan migrate` in `backend/`. If a new column is missing, the
+   login fails with "Something went wrong".
+3. If your database was filled before the demo password was set (it then still has the
+   old project's passwords), reset everything with `php artisan migrate:fresh --seed`, or
+   reset just the admin password in `backend/`:
+
+   ```powershell
+   php artisan tinker --execute '$admin = App\Models\User::where("email", "admin@gadgetshop.com")->first(); $admin->forceFill(["password" => "password", "role" => "admin", "status" => "active"])->save();'
+   ```
+
+4. After 10 wrong tries in a minute you'll see "Too Many Attempts". Wait one minute.
 
 The seed data (5 categories, 40 gadgets with photos and stock, 27 purchases,
 18 reviews, 4 users) is the original project's database

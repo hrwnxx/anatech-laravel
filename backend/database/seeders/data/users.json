@@ -5,8 +5,7 @@
         "email": "admin@gadgetshop.com",
         "role": "admin",
         "status": "active",
-        "created_at": "2026-07-25 20:42:39",
-        "password": "$2y$10$YIdFhjl2GwDD8kBqYiueEuWTTkx2nOXBOrWJ8NjYTPGHs0vLlR56m"
+        "created_at": "2026-07-25 20:42:39"
     },
     {
         "id": 2,
@@ -14,8 +13,7 @@
         "email": "juan@example.com",
         "role": "customer",
         "status": "active",
-        "created_at": "2026-07-25 20:42:39",
-        "password": "$2y$10$t9YM8yjugHTzp41oDpx0qedny2835zAu6604/g/3ecG3FDESEUlAe"
+        "created_at": "2026-07-25 20:42:39"
     },
     {
         "id": 3,
@@ -23,8 +21,7 @@
         "email": "customer@example.com",
         "role": "customer",
         "status": "active",
-        "created_at": "2026-07-27 15:45:03",
-        "password": "$2y$10$ykBnhFkv/HVeAn6aJgxPe.ilWmg98dGBajuFItP2U/EEAhVzYMm.."
+        "created_at": "2026-07-27 15:45:03"
     },
     {
         "id": 4,
@@ -32,7 +29,6 @@
         "email": "customer1@example.com",
         "role": "customer",
         "status": "active",
-        "created_at": "2026-07-27 15:47:57",
-        "password": "$2y$10$62Os4//7SzWxuh1gheXRz.vVE2vnmBRDNZ4Z06n0QWllRwItRxMHq"
+        "created_at": "2026-07-27 15:47:57"
     }
 ]
