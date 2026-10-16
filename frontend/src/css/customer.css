@@ -1,27 +1,51 @@
 /* Customer-facing pages - built on top of theme.css tokens.
-   Minimal, monochrome shop look inspired by the reference screenshots:
-   soft gray image wells, floating category pill, bold name, small
-   muted rating line, bold price, single full-width pill button. */
+   Minimal, monochrome shop look: dark hero, soft gray image wells,
+   floating category pill, bold name, muted rating line, bold price,
+   and one full-width pill button per card. */
+
+/* ---------------------------------------------------------
+   PAGE SHELL (nav + content + footer)
+   --------------------------------------------------------- */
+
+.site-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.site-main {
+    flex: 1;
+    padding-top: 1.25rem;
+    padding-bottom: 3rem;
+}
 
 /* ---------------------------------------------------------
    TOP NAV
    --------------------------------------------------------- */
 
 .site-nav {
-    background: var(--paper);
+    background: rgba(255, 255, 255, 0.88);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    backdrop-filter: saturate(180%) blur(12px);
     border-bottom: 1px solid var(--line);
+    z-index: 1030;
 }
 
 .site-nav .brand {
-    font-weight: 800;
-    font-size: 1.25rem;
-    color: var(--ink);
-    letter-spacing: -0.02em;
+    display: inline-flex;
+    align-items: center;
     text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: opacity 0.15s ease;
 }
 
-.site-nav .brand i {
-    margin-right: 0.4rem;
+.site-nav .brand:hover {
+    opacity: 0.7;
+}
+
+.site-nav .brand:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
 }
 
 /* The supplied logo files are white-on-transparent (made for dark
@@ -35,35 +59,271 @@
     vertical-align: middle;
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.nav-greeting {
+    color: var(--smoke);
+    font-size: 0.85rem;
+    margin-right: 0.5rem;
+}
+
+/* Quiet text buttons in the nav. Hover = gray fill, pressed = darker,
+   current page = black fill. */
+.nav-pill {
+    display: inline-flex;
+    align-items: center;
+    border: none;
+    background: transparent;
+    color: var(--charcoal);
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.45rem 0.8rem;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.nav-pill:hover {
+    background: var(--mist-2);
+    color: var(--ink);
+}
+
+.nav-pill:active {
+    transform: scale(0.96);
+    background: var(--line);
+}
+
+.nav-pill:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+
+.nav-pill.active {
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.nav-pill-danger:hover {
+    background: var(--accent-rust-bg);
+    color: var(--accent-rust);
+}
+
 /* ---------------------------------------------------------
-   PAGE HEADER / FILTER BAR
+   FOOTER
    --------------------------------------------------------- */
 
-.catalog-heading h2 {
-    font-size: 1.9rem;
-    margin-bottom: 0.2rem;
+.site-footer {
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--smoke);
+    font-size: 0.8rem;
+    padding: 1.25rem 0;
 }
 
-.filter-bar .form-control,
-.filter-bar .form-select {
-    background-color: var(--mist);
-    border-color: var(--mist);
+/* ---------------------------------------------------------
+   HERO + SEARCH
+   --------------------------------------------------------- */
+
+.catalog-hero {
+    background: radial-gradient(circle at 85% 0%, #2c2c33 0%, var(--ink) 55%);
+    color: var(--paper);
+    border-radius: calc(var(--radius-card) + 6px);
+    padding: 3rem 2.5rem 2.75rem;
+    margin-bottom: 1.5rem;
 }
 
-.filter-bar .form-control:focus,
-.filter-bar .form-select:focus {
+.catalog-hero h1 {
+    color: var(--paper);
+    font-size: clamp(1.9rem, 4.5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
+}
+
+.hero-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 0.6rem;
+}
+
+.hero-text {
+    max-width: 34rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.hero-search {
+    position: relative;
+    max-width: 36rem;
+}
+
+.hero-search i {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--smoke);
+    pointer-events: none;
+}
+
+.hero-search input {
+    width: 100%;
+    border: 2px solid transparent;
+    border-radius: var(--radius-pill);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1rem;
+    padding: 0.9rem 1.25rem 0.9rem 3rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hero-search input::placeholder {
+    color: var(--smoke);
+}
+
+.hero-search input:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.hero-search input:focus {
+    outline: none;
+    border-color: #8fa2ff;
+    box-shadow: 0 0 0 4px rgba(143, 162, 255, 0.35), 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* ---------------------------------------------------------
+   TOOLBAR: category chips + brand / sort
+   --------------------------------------------------------- */
+
+.catalog-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.chip {
+    border: 1.5px solid var(--line);
+    background: var(--paper);
+    color: var(--charcoal);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.4rem 1rem;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.chip:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+}
+
+.chip:active {
+    transform: scale(0.95);
+}
+
+.chip:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+
+.chip.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+}
+
+.toolbar-selects {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.toolbar-selects .form-select {
     background-color: var(--paper);
+    border-radius: var(--radius-pill);
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-width: 10rem;
+    cursor: pointer;
 }
 
-.filter-bar .input-group .form-control {
-    border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
-    border-left: none;
+.toolbar-selects .form-select:hover {
+    border-color: var(--ink);
 }
 
-.filter-bar .input-group .input-group-text {
-    background-color: var(--mist);
-    border-color: var(--mist);
-    border-right: none;
+.result-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--smoke);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.clear-filters {
+    border: none;
+    background: none;
+    color: var(--charcoal);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.clear-filters:hover {
+    background: var(--accent-rust-bg);
+    color: var(--accent-rust);
+}
+
+.clear-filters:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+
+/* Empty and error messages */
+.state-box {
+    text-align: center;
+    background: var(--paper);
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-card);
+    padding: 3rem 1rem;
+    margin-bottom: 1.5rem;
+    color: var(--smoke);
+}
+
+.state-box i {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.state-box p {
+    color: var(--charcoal);
+    font-weight: 500;
+    margin-bottom: 1rem;
 }
 
 /* ---------------------------------------------------------
@@ -71,18 +331,31 @@
    --------------------------------------------------------- */
 
 .gadget-card {
+    position: relative;
     height: 100%;
     border: 1px solid var(--line);
     border-radius: var(--radius-card);
     background: var(--paper);
     box-shadow: none;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     overflow: hidden;
 }
 
 .gadget-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
     box-shadow: var(--shadow-card);
+    border-color: var(--mist-2);
+}
+
+/* Pressed: the card dips back down like a button. */
+.gadget-card:active {
+    transform: translateY(-1px) scale(0.99);
+    box-shadow: none;
+}
+
+.gadget-card:focus-within {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
 }
 
 .gadget-card-img-wrap {
@@ -99,12 +372,18 @@
     max-height: 150px;
     max-width: 78%;
     object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.gadget-card:hover .gadget-card-img-wrap img {
+    transform: scale(1.07);
 }
 
 .gadget-card-category {
     position: absolute;
     top: 12px;
     right: 12px;
+    z-index: 1;
     background: var(--paper);
     color: var(--charcoal);
     font-size: 0.68rem;
@@ -114,6 +393,26 @@
     box-shadow: 0 2px 6px rgba(19, 19, 21, 0.12);
     text-transform: uppercase;
     letter-spacing: 0.03em;
+}
+
+.gadget-card-soldout {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1;
+    background: var(--accent-rust);
+    color: var(--paper);
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.3em 0.7em;
+    border-radius: var(--radius-pill);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.gadget-card.is-sold-out .gadget-card-img-wrap img {
+    opacity: 0.45;
+    filter: grayscale(1);
 }
 
 .gadget-card .card-body {
@@ -146,9 +445,59 @@
 .gadget-card .card-price {
     font-weight: 800;
     color: var(--ink);
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     margin-bottom: 0.5rem;
 }
+
+/* The button lights up when anywhere on the card is hovered, and its arrow slides. */
+.gadget-card:hover .card-cta {
+    background-color: var(--ink-soft);
+    border-color: var(--ink-soft);
+}
+
+.card-cta .bi-arrow-right {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.gadget-card:hover .card-cta .bi-arrow-right {
+    transform: translateX(4px);
+}
+
+/* ---------------------------------------------------------
+   LOADING SKELETONS
+   --------------------------------------------------------- */
+
+.skeleton {
+    background: linear-gradient(90deg, var(--mist) 25%, var(--mist-2) 50%, var(--mist) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.3s ease-in-out infinite;
+}
+
+.skeleton-line {
+    height: 0.8rem;
+    border-radius: var(--radius-pill);
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-button {
+    height: 2rem;
+    border-radius: var(--radius-pill);
+}
+
+.skeleton-card:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+@keyframes skeleton-shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+}
+
+/* ---------------------------------------------------------
+   SHARED BITS USED BY OTHER CUSTOMER PAGES
+   --------------------------------------------------------- */
 
 .gadget-details-img {
     max-height: 320px;
@@ -167,4 +516,52 @@
 /* Simple product/review cards on My Purchases / My Reviews / Details */
 .container .card {
     border-radius: var(--radius-card);
+}
+
+/* ---------------------------------------------------------
+   SMALL SCREENS + REDUCED MOTION
+   --------------------------------------------------------- */
+
+@media (max-width: 575.98px) {
+    .catalog-hero {
+        padding: 2rem 1.25rem 1.75rem;
+        border-radius: var(--radius-card);
+    }
+
+    .toolbar-selects {
+        width: 100%;
+    }
+
+    .toolbar-selects .form-select {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .gadget-card-img-wrap {
+        height: 150px;
+    }
+
+    .gadget-card-img-wrap img {
+        max-height: 115px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gadget-card,
+    .gadget-card-img-wrap img,
+    .card-cta .bi-arrow-right,
+    .chip,
+    .nav-pill {
+        transition: none;
+    }
+
+    .gadget-card:hover,
+    .gadget-card:hover .gadget-card-img-wrap img,
+    .gadget-card:hover .card-cta .bi-arrow-right {
+        transform: none;
+    }
+
+    .skeleton {
+        animation: none;
+    }
 }

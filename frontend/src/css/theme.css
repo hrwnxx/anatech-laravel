@@ -79,6 +79,15 @@ a:hover {
     font-size: 0.8rem;
 }
 
+/* Click feedback: buttons dip slightly while pressed. */
+.btn:active:not(:disabled):not(.disabled) {
+    transform: scale(0.97);
+}
+
+.btn:disabled, .btn.disabled {
+    cursor: not-allowed;
+}
+
 .btn:focus, .btn:focus-visible {
     box-shadow: 0 0 0 0.2rem rgba(19, 19, 21, 0.15);
 }
