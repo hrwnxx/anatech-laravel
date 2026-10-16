@@ -26,7 +26,9 @@ class GoogleController extends Controller
             return redirect($this->frontendUrl('/login?error=google-not-configured'));
         }
 
-        return Socialite::driver('google')->redirect();
+        // "select_account" makes Google always show the account chooser, so a
+        // different Google account can be used on a shared computer.
+        return Socialite::driver('google')->with(['prompt' => 'select_account'])->redirect();
     }
 
     public function callback(Request $request): RedirectResponse
@@ -34,6 +36,11 @@ class GoogleController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
         } catch (Throwable) {
+            return redirect($this->frontendUrl('/login?error=google-failed'));
+        }
+
+        // Accounts are matched by email, so a Google login without one can't be used.
+        if (blank($googleUser->getEmail())) {
             return redirect($this->frontendUrl('/login?error=google-failed'));
         }
 

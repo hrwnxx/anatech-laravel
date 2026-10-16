@@ -103,7 +103,10 @@ layout and loads the same rows.
    GOOGLE_CLIENT_SECRET=your-client-secret
    ```
 
-5. Run `php artisan config:clear`.
+5. In `backend/`, run `php artisan config:clear`, then stop and restart `php artisan serve`.
+6. Open the app at `http://localhost:5173` (not `127.0.0.1`) and click "Continue with Google".
+   While the Google project is in *Testing* mode, only the Gmail addresses you added as
+   *Test users* can sign in.
 
 The Login page's "Continue with Google" button links to
 `/auth/google/redirect` (forwarded to Laravel by the Vite proxy). After Google
