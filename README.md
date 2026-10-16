@@ -7,8 +7,8 @@ admin before it goes public.
 
 This is the Laravel + React version of the original native-PHP project.
 
-- **Backend:** Laravel 13 (PHP 8.3+), a JSON API under `/api`
-- **Frontend:** React (served by the same Laravel app through Vite)
+- **Backend** (`backend/`): Laravel 13 (PHP 8.3+), a JSON API under `/api`
+- **Frontend** (`frontend/`): React + Vite, a separate app that calls the API
 - **Database:** MySQL / MariaDB (XAMPP)
 - **Login:** email + password, or Google (Laravel Socialite)
 
@@ -16,11 +16,14 @@ This is the Laravel + React version of the original native-PHP project.
 
 ## 1. Setup on a new computer
 
-Start **MySQL** in the XAMPP Control Panel, then run these in the project folder:
+The project is two separate apps in one repository: `backend/` (Laravel) and
+`frontend/` (React). Start **MySQL** in the XAMPP Control Panel, then set up each one.
+
+**Backend**
 
 ```bash
+cd backend
 composer install
-npm install
 copy .env.example .env
 php artisan key:generate
 ```
@@ -31,33 +34,45 @@ Create the database (or use phpMyAdmin → New → `anatech_laravel`):
 C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE anatech_laravel CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 ```
 
-Create the tables, load the data, and make product photos reachable:
+Create the tables, load the data, and make product photos reachable (still in `backend/`):
 
 ```bash
 php artisan migrate --seed
 php artisan storage:link
 ```
 
-Run the app (two terminals):
+**Frontend**
 
 ```bash
-php artisan serve
-npm run dev
+cd frontend
+npm install
 ```
 
-Open **http://localhost:8000**. Always use `localhost:8000`, not `127.0.0.1:8000`:
+**Run both** (two terminals):
+
+```bash
+cd backend  && php artisan serve    # API at http://127.0.0.1:8000
+cd frontend && npm run dev          # app at http://localhost:5173
+```
+
+Open **http://localhost:5173**. Always use `localhost:5173`, not `127.0.0.1:5173`:
 the login session and Google login are set up for that address.
+
+The React dev server forwards `/api` and `/auth` to Laravel (see
+`frontend/vite.config.js`), so the browser only ever talks to one address and
+no CORS setup is needed. If you run Laravel on another port, change `laravelServer`
+in that file and `APP_URL` in `backend/.env`.
 
 To reset everything back to the original data at any time:
 
 ```bash
-php artisan migrate:fresh --seed
+cd backend && php artisan migrate:fresh --seed
 ```
 
 ## 2. Demo accounts
 
-All seeded accounts use the password **`password`** (set in
-`database/seeders/UserSeeder.php`).
+Every account keeps the password it had in the original project (the seeder
+stores the original bcrypt hashes, so use the same passwords as before).
 
 | Role     | Email                   |
 |----------|-------------------------|
@@ -67,8 +82,11 @@ All seeded accounts use the password **`password`** (set in
 | Customer | `customer1@example.com` |
 
 The seed data (5 categories, 40 gadgets with photos and stock, 27 purchases,
-18 reviews) was carried over from the original project's database. It lives in
-`database/seeders/data/*.json` and `database/seeders/images/`.
+18 reviews, 4 users) is the original project's database
+(`gadget_review_system.sql`) in `backend/database/seeders/data/*.json` and
+`backend/database/seeders/images/`. You do not import the `.sql` file: its
+tables are the old layout, and `php artisan migrate --seed` builds the new
+layout and loads the same rows.
 
 ## 3. Login with Google (optional)
 
@@ -78,7 +96,7 @@ The seed data (5 categories, 40 gadgets with photos and stock, 27 purchases,
 3. **APIs & Services → Credentials → Create credentials → OAuth client ID**:
    - Application type: *Web application*
    - Authorized redirect URI: `http://localhost:8000/auth/google/callback`
-4. Copy the client ID and secret into `.env`:
+4. Copy the client ID and secret into `backend/.env`:
 
    ```env
    GOOGLE_CLIENT_ID=your-client-id
@@ -87,8 +105,10 @@ The seed data (5 categories, 40 gadgets with photos and stock, 27 purchases,
 
 5. Run `php artisan config:clear`.
 
-The Login page's "Continue with Google" button should link to
-`/auth/google/redirect`. If someone logs in with Google using the same email as
+The Login page's "Continue with Google" button links to
+`/auth/google/redirect` (forwarded to Laravel by the Vite proxy). After Google
+signs the user in, Laravel sends the browser back to `FRONTEND_URL` (set in
+`backend/.env`, default `http://localhost:5173`). If someone logs in with Google using the same email as
 an existing account, it logs into that account. Otherwise a new customer account
 is created. They can browse right away, but can only review gadgets after an
 admin records a purchase for them.
@@ -99,14 +119,25 @@ The tests use a separate database so they never touch your real data:
 
 ```bash
 C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE anatech_laravel_test"
-php artisan test
+cd backend && php artisan test
 ```
 
-68 tests cover login, the catalog, the purchase-before-review rule, stock
-limits, admin-only access, moderation, user management and the dashboard
-numbers.
+The tests cover login, the catalog, the purchase-before-review rule, stock
+limits, admin-only access, moderation, user management, the dashboard
+numbers and that the backend serves JSON only.
 
-## 5. How the backend is organized
+## 5. How the project is organized
+
+```
+anatech-laravel/
+├── backend/     Laravel API (described below)
+└── frontend/    React app
+    ├── index.html, vite.config.js (dev proxy to Laravel), public/images
+    └── src/     main.jsx, App.jsx (all routes), api.js (axios), auth/, layouts/,
+                 components/, pages/{guest,customer,admin,auth}/, css/
+```
+
+### Backend (`backend/`)
 
 ```
 app/
@@ -142,7 +173,7 @@ database/
 
 routes/
 ├── api.php                      every /api endpoint, grouped by who may call it
-└── web.php                      Google login routes + the page that loads React
+└── web.php                      only the Google login redirect + callback
 ```
 
 ### Mapping from the old PHP version
@@ -173,9 +204,9 @@ routes/
 
 ## 6. API reference (for the React side)
 
-All endpoints are under `/api` and return JSON. React must call them from the
-page served by `php artisan serve` (same site), so the login session cookie and
-CSRF token work automatically with axios. Validation errors come back as
+All endpoints are under `/api` and return JSON. React calls them through the Vite
+dev proxy (same address as the page), so the login session cookie and CSRF token
+work automatically with axios. Validation errors come back as
 **422** with `{ "message": "...", "errors": { "field": ["..."] } }`. Not logged in is
 **401**, and not allowed is **403**.
 
@@ -231,7 +262,7 @@ description, image_url, archived, stock, units_sold, avg_rating, review_count }`
 
 ### Pages React should provide
 
-Google login redirects to `/` (customers) or `/admin` (admins), and to
+Google login redirects to `/` (customers) or `/admin` (admins) on the React app, and to
 `/login?error=...` when something goes wrong (`google-not-configured`,
 `google-failed`, `inactive`).
 "# Anatech-Laravel-Customer" 
