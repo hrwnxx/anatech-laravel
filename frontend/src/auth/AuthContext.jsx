@@ -16,8 +16,15 @@ export function AuthProvider({ children }) {
             .finally(() => setLoading(false));
     }, []);
 
+    // Customers without Gmail (customers with Gmail use "Continue with Google").
     async function login(email, password) {
         const response = await api.post('/login', { email, password });
+        setUser(response.data);
+        return response.data;
+    }
+
+    async function staffLogin(email, password) {
+        const response = await api.post('/staff/login', { email, password });
         setUser(response.data);
         return response.data;
     }
@@ -28,7 +35,7 @@ export function AuthProvider({ children }) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, staffLogin, logout }}>
             {children}
         </AuthContext.Provider>
     );

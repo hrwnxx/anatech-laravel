@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 // ---- Public: no login needed ------------------------------------------
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
+Route::post('/staff/login', [AuthController::class, 'staffLogin'])->middleware('throttle:login');
 
 Route::get('/gadgets', [CatalogController::class, 'index']);
 Route::get('/gadgets/{id}', [CatalogController::class, 'show'])->whereNumber('id');

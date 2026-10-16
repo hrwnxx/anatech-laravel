@@ -7,16 +7,23 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Laravel\Socialite\Contracts\User as GoogleUser;
 use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse;
 use Throwable;
 
 /**
- * "Login with Google" using Laravel Socialite.
+ * "Continue with Google" for customers, using Laravel Socialite.
  *
- * 1. The Login page links to /auth/google/redirect, which sends the browser to Google.
- * 2. Google sends the browser back to /auth/google/callback with the user's details.
- * 3. We find or create the account, log it in, and send the browser back to React.
+ * Google is a way to LOG IN, never to sign up. Customer accounts are only
+ * created by staff when they record an in-store purchase, using the
+ * customer's Gmail address. Staff never log in with Google; they use the
+ * separate staff login page.
+ *
+ * 1. The customer Login page links to /auth/google/redirect, which sends the browser to Google.
+ * 2. Google sends the browser back to /auth/google/callback with the person's details.
+ * 3. We find the matching customer account (or refuse), log it in, and send the browser back to React.
  */
 class GoogleController extends Controller
 {
@@ -33,49 +40,68 @@ class GoogleController extends Controller
 
     public function callback(Request $request): RedirectResponse
     {
+        // The person pressed "Cancel" on Google's page.
+        if ($request->filled('error')) {
+            return redirect($this->frontendUrl('/login?error=google-cancelled'));
+        }
+
         try {
             $googleUser = Socialite::driver('google')->user();
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            // Written to storage/logs/laravel.log so the real reason can be found.
+            report($exception);
+
             return redirect($this->frontendUrl('/login?error=google-failed'));
         }
 
-        // Accounts are matched by email, so a Google login without one can't be used.
-        if (blank($googleUser->getEmail())) {
-            return redirect($this->frontendUrl('/login?error=google-failed'));
+        if (! $this->hasVerifiedEmail($googleUser)) {
+            return redirect($this->frontendUrl('/login?error=google-unverified'));
         }
 
-        // Use the account already linked to this Google login, or the one
-        // with the same email (e.g. created by an admin at the store).
-        $user = User::where('google_id', $googleUser->getId())->first()
-            ?? User::where('email', $googleUser->getEmail())->first();
+        $customer = $this->findCustomer($googleUser);
 
-        if ($user && ! $user->isActive()) {
+        // No account is ever created here. Staff accounts get the same answer,
+        // so the public login page never reveals who the staff are.
+        if (! $customer) {
+            return redirect($this->frontendUrl('/login?error=no-account'));
+        }
+
+        if (! $customer->isActive()) {
             return redirect($this->frontendUrl('/login?error=inactive'));
         }
 
-        if ($user) {
-            $user->update([
-                'google_id' => $googleUser->getId(),
-                'avatar' => $googleUser->getAvatar(),
-            ]);
-        } else {
-            // First time with Google and no matching account: create a
-            // customer account. They can browse right away, but can only
-            // review gadgets once an admin records a purchase for them.
-            $user = User::create([
-                'name' => $googleUser->getName() ?: $googleUser->getEmail(),
-                'email' => $googleUser->getEmail(),
-                'google_id' => $googleUser->getId(),
-                'avatar' => $googleUser->getAvatar(),
-                'role' => 'customer',
-                'status' => 'active',
-            ]);
-        }
+        // Links the Google account on the first login. Later logins match by
+        // google_id, so they keep working even if the Gmail address changes.
+        $customer->update([
+            'google_id' => $googleUser->getId(),
+            'avatar' => $googleUser->getAvatar(),
+        ]);
 
-        Auth::login($user, remember: true);
+        Auth::login($customer, remember: true);
         $request->session()->regenerate();
+        $customer->recordLogin();
 
-        return redirect($this->frontendUrl($user->isAdmin() ? '/admin' : '/'));
+        return redirect($this->frontendUrl('/'));
+    }
+
+    private function hasVerifiedEmail(GoogleUser $googleUser): bool
+    {
+        $isVerified = filter_var($googleUser->getRaw()['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+        return $isVerified && filled($googleUser->getEmail());
+    }
+
+    /**
+     * The customer already linked to this Google account, or else the
+     * not-yet-linked customer whose email staff entered at the store.
+     */
+    private function findCustomer(GoogleUser $googleUser): ?User
+    {
+        return User::where('role', 'customer')->where('google_id', $googleUser->getId())->first()
+            ?? User::where('role', 'customer')
+                ->whereNull('google_id')
+                ->where('email', Str::lower($googleUser->getEmail()))
+                ->first();
     }
 
     /**

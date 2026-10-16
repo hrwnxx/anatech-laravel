@@ -8,5 +8,7 @@ use Illuminate\Support\Facades\Route;
 | The only browser-facing routes are the Google login redirects, because the
 | browser itself has to travel to Google and back.
 */
-Route::get('/auth/google/redirect', [GoogleController::class, 'redirect']);
-Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
+Route::middleware('throttle:google-login')->group(function () {
+    Route::get('/auth/google/redirect', [GoogleController::class, 'redirect']);
+    Route::get('/auth/google/callback', [GoogleController::class, 'callback']);
+});

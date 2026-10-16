@@ -74,12 +74,16 @@ cd backend && php artisan migrate:fresh --seed
 Every account keeps the password it had in the original project (the seeder
 stores the original bcrypt hashes, so use the same passwords as before).
 
-| Role     | Email                   |
-|----------|-------------------------|
-| Admin    | `admin@gadgetshop.com`  |
-| Customer | `juan@example.com`      |
-| Customer | `customer@example.com`  |
-| Customer | `customer1@example.com` |
+| Role     | Email                   | Log in at                                   |
+|----------|-------------------------|---------------------------------------------|
+| Admin    | `admin@gadgetshop.com`  | `http://localhost:5173/staff-login`         |
+| Customer | `juan@example.com`      | `http://localhost:5173/login` → "Log in with password" |
+| Customer | `customer@example.com`  | same                                        |
+| Customer | `customer1@example.com` | same                                        |
+
+Staff and customers log in on **separate pages**, and each page only accepts its
+own role. The staff page (`/staff-login`) is not linked from anywhere on the
+public site, so staff should bookmark it.
 
 The seed data (5 categories, 40 gadgets with photos and stock, 27 purchases,
 18 reviews, 4 users) is the original project's database
@@ -108,13 +112,41 @@ layout and loads the same rows.
    While the Google project is in *Testing* mode, only the Gmail addresses you added as
    *Test users* can sign in.
 
-The Login page's "Continue with Google" button links to
+### How Google login works in this store
+
+Google is a way for **customers to log in, never to sign up**. This is a small
+store where customers only get an account after buying in person:
+
+1. A customer buys a gadget at the counter.
+2. Staff record the sale in **Admin → Purchases → New Customer**, entering the
+   customer's **Gmail address**. The temporary password is optional and only for
+   customers without Gmail.
+3. The customer opens `/login` and clicks **Continue with Google**. Laravel
+   (`app/Http/Controllers/Auth/GoogleController.php`) matches their Google account
+   to the account staff created, links it, and logs them in.
+4. Customers without Gmail click **"No Gmail? Log in with password"** and use the
+   temporary password.
+
+What the Google login refuses (each has an automated test in `tests/Feature/GoogleLoginTest.php`):
+
+| Situation | Result |
+|---|---|
+| Gmail that doesn't belong to any customer | Refused with "accounts are created when you buy in store". **No account is created.** |
+| A staff member's Gmail | Refused the same way. Staff use `/staff-login` with a password. |
+| An inactive customer | Refused |
+| A Google account whose email Google hasn't verified | Refused |
+| An email already linked to a *different* Google account | Refused |
+
+The first Google login links the Google account (`users.google_id`), so later
+logins keep working even if the customer's Gmail address changes. If staff change
+a customer's email in **Admin → Users** (for example, to fix a typo), the old
+Google link is removed and the new email is used next time. The Customers page
+shows each customer's login method and last login.
+
+Behind the scenes, the "Continue with Google" button links to
 `/auth/google/redirect` (forwarded to Laravel by the Vite proxy). After Google
-signs the user in, Laravel sends the browser back to `FRONTEND_URL` (set in
-`backend/.env`, default `http://localhost:5173`). If someone logs in with Google using the same email as
-an existing account, it logs into that account. Otherwise a new customer account
-is created. They can browse right away, but can only review gadgets after an
-admin records a purchase for them.
+signs the person in, Laravel sends the browser back to `FRONTEND_URL` (set in
+`backend/.env`, default `http://localhost:5173`).
 
 ## 4. Automated tests
 
@@ -217,7 +249,8 @@ work automatically with axios. Validation errors come back as
 
 | Method | URL | Notes |
 |---|---|---|
-| POST | `/api/login` | `{ email, password }` → the user (`role` tells admin vs customer) |
+| POST | `/api/login` | Customer password login: `{ email, password }` → the user. Refuses staff accounts. |
+| POST | `/api/staff/login` | Staff password login: `{ email, password }` → the user. Refuses customer accounts. |
 | GET | `/api/gadgets` | Catalog. Query: `keyword`, `category_id`, `brand`, `sort` = `newest` \| `price_asc` \| `price_desc` \| `rating` \| `popular` \| `name` |
 | GET | `/api/gadgets/{id}` | `{ gadget, reviews, rating_counts, viewer: { logged_in, has_purchased, my_review } }` |
 | GET | `/api/categories` | `[{ id, name }]` |
@@ -250,7 +283,7 @@ description, image_url, archived, stock, units_sold, avg_rating, review_count }`
 | PATCH | `/gadgets/{id}/archive`, `/gadgets/{id}/unarchive` | |
 | POST | `/gadgets/{id}/stock-in`, `/gadgets/{id}/stock-out` | `{ quantity }` → `{ stock }`. Stock-out returns 422 if there isn't enough |
 | GET | `/purchases` | Query: `archived=1` |
-| POST | `/purchases` | Existing customer: `{ user_id, gadget_id, quantity, purchase_date }`. New customer: `{ new_customer: true, name, email, password, gadget_id, quantity, purchase_date }` |
+| POST | `/purchases` | Existing customer: `{ user_id, gadget_id, quantity, purchase_date }`. New customer: `{ new_customer: true, name, email, password?, gadget_id, quantity, purchase_date }`. `email` is the customer's Gmail; `password` is optional (only for customers without Gmail) |
 | PATCH | `/purchases/{id}/archive`, `/purchases/{id}/unarchive` | |
 | GET | `/reviews` | Query: `status=pending` (default) or `status=archived` |
 | PATCH | `/reviews/{id}/approve`, `/reviews/{id}/reject` | |
@@ -258,14 +291,15 @@ description, image_url, archived, stock, units_sold, avg_rating, review_count }`
 | GET | `/customers` | Query: `keyword`. Includes `purchases_count`, `reviews_count` |
 | GET | `/customers/{id}/purchases` | One customer's purchase history |
 | GET | `/users` | Query: `keyword`, `role`, `status` |
-| POST | `/users` | `{ name, email, password, role, status? }` |
-| PUT | `/users/{id}` | `{ name, email, role, status }` |
+| POST | `/users` | `{ name, email, password?, role, status? }`. `password` is required for staff, optional for customers |
+| PUT | `/users/{id}` | `{ name, email, role, status }`. Changing the email unlinks the old Google account |
 | PUT | `/users/{id}/password` | `{ password }` |
 | DELETE | `/users/{id}` | Also deletes their purchases and reviews, so prefer setting `status` to `inactive` |
 
 ### Pages React should provide
 
-Google login redirects to `/` (customers) or `/admin` (admins) on the React app, and to
-`/login?error=...` when something goes wrong (`google-not-configured`,
-`google-failed`, `inactive`).
+Google login (customers only) redirects to `/` on the React app, and to
+`/login?error=...` when it's refused or something goes wrong (`google-not-configured`,
+`google-cancelled`, `google-failed`, `google-unverified`, `no-account`, `inactive`).
+Staff log in at `/staff-login`.
 "# Anatech-Laravel-Customer" 

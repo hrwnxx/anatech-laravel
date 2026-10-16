@@ -35,6 +35,9 @@ class PurchaseController extends Controller
     /**
      * Records one sale. With "new_customer": true, the customer's account is
      * created in the same step (customers don't sign up on their own).
+     * The email should be the customer's Gmail address, which is how they log
+     * in with Google. The temporary password is optional and only needed for
+     * customers without Gmail.
      */
     public function store(Request $request): JsonResponse
     {
@@ -44,7 +47,7 @@ class PurchaseController extends Controller
             'user_id' => [Rule::excludeIf($isNewCustomer), 'required', Rule::exists('users', 'id')->where('role', 'customer')],
             'name' => [Rule::excludeIf(! $isNewCustomer), 'required', 'string', 'max:100'],
             'email' => [Rule::excludeIf(! $isNewCustomer), 'required', 'email', 'max:150', 'unique:users,email'],
-            'password' => [Rule::excludeIf(! $isNewCustomer), 'required', 'string', 'min:6'],
+            'password' => [Rule::excludeIf(! $isNewCustomer), 'nullable', 'string', 'min:6'],
             'gadget_id' => ['required', 'integer', Rule::exists('gadgets', 'id')->where('archived', false)],
             'quantity' => ['required', 'integer', 'min:1'],
             'purchase_date' => ['required', 'date', 'before_or_equal:today'],
@@ -57,7 +60,7 @@ class PurchaseController extends Controller
                 ? User::create([
                     'name' => $data['name'],
                     'email' => $data['email'],
-                    'password' => $data['password'],
+                    'password' => $data['password'] ?? null,
                     'role' => 'customer',
                     'status' => 'active',
                 ])->id

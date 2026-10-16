@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../api';
+import LoginMethodBadge from '../../components/LoginMethodBadge';
 import Modal from '../../components/Modal';
 import StatusBadge from '../../components/StatusBadge';
 import { peso, shortDate } from '../../format';
@@ -49,13 +50,15 @@ export default function CustomersPage() {
                                 <th>Status</th>
                                 <th>Purchases</th>
                                 <th>Reviews</th>
+                                <th>Login</th>
+                                <th>Last login</th>
                                 <th>Joined</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {customers.length === 0 && (
-                                <tr><td colSpan="7" className="text-center text-muted py-4">No customers found.</td></tr>
+                                <tr><td colSpan="9" className="text-center text-muted py-4">No customers found.</td></tr>
                             )}
                             {customers.map((customer) => (
                                 <tr key={customer.id}>
@@ -64,6 +67,8 @@ export default function CustomersPage() {
                                     <td><StatusBadge status={customer.status} /></td>
                                     <td>{customer.purchases_count}</td>
                                     <td>{customer.reviews_count}</td>
+                                    <td className="text-nowrap"><LoginMethodBadge user={customer} /></td>
+                                    <td>{customer.last_login_at ? shortDate(customer.last_login_at) : <span className="text-muted">Never</span>}</td>
                                     <td>{shortDate(customer.created_at)}</td>
                                     <td className="text-end">
                                         <button className="btn btn-sm btn-outline-dark" onClick={() => viewPurchases(customer)}>

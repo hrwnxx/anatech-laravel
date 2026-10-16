@@ -47,16 +47,23 @@ export default function PurchasesPage() {
         setFormError('');
 
         const sale = { gadget_id: values.gadget_id, quantity: values.quantity, purchase_date: values.purchase_date };
+        // The temporary password is only sent when staff typed one (customers without Gmail).
         const customer = newCustomer
-            ? { new_customer: true, name: values.name, email: values.email, password: values.password }
+            ? { new_customer: true, name: values.name, email: values.email, password: values.password || null }
             : { user_id: values.user_id };
+        const usesPassword = newCustomer && values.password !== '';
 
         try {
             const response = await api.post('/admin/purchases', { ...sale, ...customer });
             const purchase = response.data;
             setMessage(
                 `Recorded: ${purchase.customer.name} bought ${purchase.quantity} × ${purchase.gadget.brand} ${purchase.gadget.gadget_name} (${peso(purchase.total)}).`
-                + (newCustomer ? ` A customer account was created for ${purchase.customer.email}.` : '')
+                + (newCustomer
+                    ? ` An account was created for ${purchase.customer.email}. `
+                        + (usesPassword
+                            ? 'The customer logs in with that email and the temporary password.'
+                            : 'The customer logs in with "Continue with Google" using that Gmail address.')
+                    : '')
             );
             setValues(emptyForm);
             setNewCustomer(false);
@@ -110,12 +117,14 @@ export default function PurchasesPage() {
                                         <input name="name" className="form-control" value={values.name} onChange={handleChange} required />
                                     </div>
                                     <div className="col-md-4">
-                                        <label className="form-label">Email</label>
+                                        <label className="form-label">Customer's Gmail address</label>
                                         <input name="email" type="email" className="form-control" value={values.email} onChange={handleChange} required />
+                                        <div className="form-text">Read it back to the customer. It's how they log in with Google.</div>
                                     </div>
                                     <div className="col-md-4">
-                                        <label className="form-label">Temporary Password</label>
-                                        <input name="password" className="form-control" minLength={6} value={values.password} onChange={handleChange} required />
+                                        <label className="form-label">Temporary Password <span className="text-muted">(optional)</span></label>
+                                        <input name="password" className="form-control" minLength={6} value={values.password} onChange={handleChange} />
+                                        <div className="form-text">Only for customers without Gmail. Leave empty otherwise.</div>
                                     </div>
                                 </>
                             ) : (

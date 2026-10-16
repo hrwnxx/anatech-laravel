@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api, { errorMessage } from '../../api';
 import { useAuth } from '../../auth/AuthContext';
+import LoginMethodBadge from '../../components/LoginMethodBadge';
 import Modal from '../../components/Modal';
 import StatusBadge from '../../components/StatusBadge';
 import { shortDate } from '../../format';
@@ -65,7 +66,8 @@ export default function UsersPage() {
                 await api.put(`/admin/users/${editing.id}`, changes);
                 setMessage(`${values.name} was updated.`);
             } else {
-                await api.post('/admin/users', values);
+                // An empty password means none: customers with Gmail log in with Google.
+                await api.post('/admin/users', { ...values, password: values.password || null });
                 setMessage(`${values.name} was added.`);
             }
             setFormOpen(false);
@@ -152,13 +154,14 @@ export default function UsersPage() {
                                 <th>Email</th>
                                 <th>Role</th>
                                 <th>Status</th>
+                                <th>Login</th>
                                 <th>Created</th>
                                 <th className="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {users.length === 0 && (
-                                <tr><td colSpan="6" className="text-center text-muted py-4">No users found.</td></tr>
+                                <tr><td colSpan="7" className="text-center text-muted py-4">No users found.</td></tr>
                             )}
                             {users.map((user) => (
                                 <tr key={user.id}>
@@ -173,6 +176,7 @@ export default function UsersPage() {
                                         </span>
                                     </td>
                                     <td><StatusBadge status={user.status} /></td>
+                                    <td className="text-nowrap"><LoginMethodBadge user={user} /></td>
                                     <td>{shortDate(user.created_at)}</td>
                                     <td className="text-end text-nowrap">
                                         <button className="btn btn-sm btn-outline-primary me-1" title="Edit" onClick={() => openEditForm(user)}>
@@ -205,10 +209,25 @@ export default function UsersPage() {
                         <input name="name" className="form-control mb-2" value={values.name} onChange={handleChange} required />
                         <label className="form-label">Email</label>
                         <input name="email" type="email" className="form-control mb-2" value={values.email} onChange={handleChange} required />
+                        {editing?.has_google_login && editing.email !== values.email.trim().toLowerCase() && (
+                            <div className="form-text mb-2">
+                                Changing the email unlinks their current Google account. They'll log in with Google using the new email.
+                            </div>
+                        )}
                         {!editing && (
                             <>
-                                <label className="form-label">Password</label>
-                                <input name="password" className="form-control mb-2" minLength={6} value={values.password} onChange={handleChange} required />
+                                <label className="form-label">
+                                    Password{' '}
+                                    {values.role === 'customer' && <span className="text-muted">(optional: only for customers without Gmail)</span>}
+                                </label>
+                                <input
+                                    name="password"
+                                    className="form-control mb-2"
+                                    minLength={6}
+                                    value={values.password}
+                                    onChange={handleChange}
+                                    required={values.role === 'admin'}
+                                />
                             </>
                         )}
                         <div className="row g-2 mb-3">

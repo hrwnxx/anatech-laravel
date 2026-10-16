@@ -77,6 +77,23 @@ class PurchaseRecordingTest extends TestCase
         $this->assertTrue(Auth::guard('web')->validate(['email' => 'maria@example.com', 'password' => 'secret123']));
     }
 
+    public function test_customer_with_gmail_needs_no_temporary_password(): void
+    {
+        $gadget = Gadget::factory()->create();
+
+        $this->postJson('/api/admin/purchases', [
+            'new_customer' => true,
+            'name' => 'Maria Santos',
+            'email' => 'Maria.Santos@Gmail.com',
+            'gadget_id' => $gadget->id,
+            'quantity' => 1,
+            'purchase_date' => now()->toDateString(),
+        ])->assertCreated()->assertJsonPath('customer.email', 'maria.santos@gmail.com');
+
+        $customer = User::where('email', 'maria.santos@gmail.com')->firstOrFail();
+        $this->assertNull($customer->password);
+    }
+
     public function test_new_customer_is_not_created_when_the_stock_check_fails(): void
     {
         $gadget = Gadget::factory()->withStock(0)->create();

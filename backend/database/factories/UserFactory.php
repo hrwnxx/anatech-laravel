@@ -50,6 +50,16 @@ class UserFactory extends Factory
     }
 
     /**
+     * A customer who logs in with Google only (staff gave no temporary password).
+     */
+    public function withoutPassword(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'password' => null,
+        ]);
+    }
+
+    /**
      * Indicate that the model's email address should be unverified.
      */
     public function unverified(): static

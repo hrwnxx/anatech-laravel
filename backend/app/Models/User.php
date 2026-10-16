@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -31,8 +32,18 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Emails are stored in lowercase, so "Maria@Gmail.com" typed by staff
+     * matches the "maria@gmail.com" that Google sends back.
+     */
+    protected function email(): Attribute
+    {
+        return Attribute::set(fn (string $value): string => Str::lower(trim($value)));
     }
 
     public function purchases(): HasMany
@@ -69,6 +80,28 @@ class User extends Authenticatable
     public function isActive(): bool
     {
         return $this->status === 'active';
+    }
+
+    /**
+     * True once the customer has logged in with Google at least once.
+     */
+    public function hasGoogleLogin(): bool
+    {
+        return $this->google_id !== null;
+    }
+
+    /**
+     * Customers with a Gmail address usually have no password; staff only
+     * give a temporary password to customers without one.
+     */
+    public function hasPassword(): bool
+    {
+        return $this->password !== null;
+    }
+
+    public function recordLogin(): void
+    {
+        $this->forceFill(['last_login_at' => now()])->save();
     }
 
     /**

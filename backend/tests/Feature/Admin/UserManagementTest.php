@@ -37,6 +37,52 @@ class UserManagementTest extends TestCase
         $this->assertTrue(Hash::check('secret123', $user->password));
     }
 
+    public function test_staff_accounts_need_a_password(): void
+    {
+        $this->postJson('/api/admin/users', [
+            'name' => 'Staff Member',
+            'email' => 'staff@example.com',
+            'role' => 'admin',
+        ])->assertUnprocessable()->assertJsonValidationErrors([
+            'password' => 'Staff accounts need a password, because staff log in with a password.',
+        ]);
+    }
+
+    public function test_customer_accounts_can_be_created_without_a_password(): void
+    {
+        $this->postJson('/api/admin/users', [
+            'name' => 'Maria Santos',
+            'email' => 'maria@gmail.com',
+            'role' => 'customer',
+        ])->assertCreated()
+            ->assertJsonPath('has_password', false)
+            ->assertJsonPath('has_google_login', false);
+    }
+
+    public function test_changing_an_email_unlinks_the_old_google_account(): void
+    {
+        $customer = User::factory()->create(['email' => 'maria@gmial.com', 'google_id' => 'google-123']);
+        $changes = ['name' => $customer->name, 'role' => 'customer', 'status' => 'active'];
+
+        $this->putJson("/api/admin/users/{$customer->id}", [...$changes, 'email' => 'maria@gmail.com'])
+            ->assertOk()
+            ->assertJsonPath('has_google_login', false);
+
+        $this->assertNull($customer->fresh()->google_id);
+    }
+
+    public function test_editing_without_changing_the_email_keeps_the_google_account_linked(): void
+    {
+        $customer = User::factory()->create(['email' => 'maria@gmail.com', 'google_id' => 'google-123']);
+
+        $this->putJson("/api/admin/users/{$customer->id}", [
+            'name' => 'Maria S.',
+            'email' => 'Maria@Gmail.com',
+            'role' => 'customer',
+            'status' => 'active',
+        ])->assertOk()->assertJsonPath('has_google_login', true);
+    }
+
     public function test_email_must_be_unique(): void
     {
         User::factory()->create(['email' => 'taken@example.com']);

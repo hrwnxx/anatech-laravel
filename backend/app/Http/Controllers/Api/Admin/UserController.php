@@ -34,12 +34,16 @@ class UserController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        // Staff always log in with a password. Customers usually log in with
+        // Google, so their password is optional.
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:150', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6'],
+            'password' => [Rule::requiredIf($request->input('role') === 'admin'), 'nullable', 'string', 'min:6'],
             'role' => ['required', 'in:admin,customer'],
             'status' => ['sometimes', 'in:active,inactive'],
+        ], [
+            'password.required' => 'Staff accounts need a password, because staff log in with a password.',
         ]);
 
         // The password is hashed automatically by the User model's "hashed" cast.
@@ -64,7 +68,16 @@ class UserController extends Controller
             ]);
         }
 
-        $user->update($data);
+        $user->fill($data);
+
+        // A changed email (for example, staff fixing a typo) unlinks the old
+        // Google account, so only the Google account with the new email can
+        // log in from now on.
+        if ($user->isDirty('email')) {
+            $user->google_id = null;
+        }
+
+        $user->save();
 
         return new UserResource($user);
     }

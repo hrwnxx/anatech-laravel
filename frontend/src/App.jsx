@@ -6,6 +6,7 @@ import CustomerLayout from './layouts/CustomerLayout';
 import CatalogPage from './pages/guest/CatalogPage';
 import GadgetDetailsPage from './pages/guest/GadgetDetailsPage';
 import LoginPage from './pages/auth/LoginPage';
+import StaffLoginPage from './pages/auth/StaffLoginPage';
 import MyPurchasesPage from './pages/customer/MyPurchasesPage';
 import MyReviewsPage from './pages/customer/MyReviewsPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -22,6 +23,8 @@ export default function App() {
     return (
         <Routes>
             <Route path="/login" element={<LoginPage />} />
+            {/* Staff only. Not linked from any public page. */}
+            <Route path="/staff-login" element={<StaffLoginPage />} />
 
             {/* Customer side: the top navigation bar */}
             <Route element={<CustomerLayout />}>

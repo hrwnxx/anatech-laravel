@@ -23,7 +23,7 @@ export default function AdminLayout() {
     async function handleLogout(event) {
         event.preventDefault();
         await logout();
-        navigate('/login');
+        navigate('/staff-login');
     }
 
     return (
